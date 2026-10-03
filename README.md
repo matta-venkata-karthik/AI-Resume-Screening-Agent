@@ -318,7 +318,7 @@ Clone the repository
 
 bash
 
-git clone https://github.com/9154327992/AI-Resume-Screening-Agent
+git clone https://github.com/matta-venkata-karthik/AI-Resume-Screening-Agent
 
 
 Go to project directory
@@ -589,4 +589,4 @@ Matta Venkata Karthik
 
 🏫 College LinkedIn: https://www.linkedin.com/company/datascience-nriit
 
-💻 GitHub: https://github.com/9154327992
+💻 GitHub: https://github.com/matta-venkata-karthik
