@@ -5,6 +5,7 @@
 
 import streamlit as st
 import os
+import requests
 
 # ----------------------------------------------------------
 # Page Configuration
@@ -16,6 +17,33 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# ----------------------------------------------------------
+# Backend Configuration
+# ----------------------------------------------------------
+
+BACKEND_URL = "https://YOUR-BACKEND-NAME.onrender.com"
+
+# ----------------------------------------------------------
+# Wake Up Backend
+# ----------------------------------------------------------
+
+@st.cache_resource
+def wake_backend():
+
+    try:
+        response = requests.get(
+            BACKEND_URL,
+            timeout=60
+        )
+
+        return response.status_code
+
+    except requests.exceptions.RequestException:
+        return None
+
+
+backend_status = wake_backend()
 
 # ----------------------------------------------------------
 # Load Custom CSS
