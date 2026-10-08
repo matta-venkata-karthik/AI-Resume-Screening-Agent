@@ -164,22 +164,10 @@ st.sidebar.title(
     "AI Resume Screening Agent"
 )
 
-st.sidebar.markdown("---")
-
-st.sidebar.write(
-    "Version 1.0"
-)
-
 
 # ==========================================================
 # Backend Status
 # ==========================================================
-
-st.sidebar.markdown("---")
-
-st.sidebar.subheader(
-    "Backend Status"
-)
 
 if backend_available:
 
@@ -188,7 +176,7 @@ if backend_available:
     )
 
     st.sidebar.caption(
-        BACKEND_URL
+        f"Backend: {BACKEND_URL}"
     )
 
 else:
@@ -198,7 +186,7 @@ else:
     )
 
     st.sidebar.caption(
-        BACKEND_URL
+        f"Backend: {BACKEND_URL}"
     )
 
     if st.sidebar.button(
@@ -215,6 +203,17 @@ else:
         ] = False
 
         st.rerun()
+
+
+# ==========================================================
+# Version
+# ==========================================================
+
+st.sidebar.markdown("---")
+
+st.sidebar.write(
+    "Version 1.0"
+)
 
 
 # ==========================================================
