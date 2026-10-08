@@ -1,5 +1,5 @@
 # ==========================================================
-# AI Resume Screening Agent
+# AI RESUME SCREENING AGENT
 # Main Streamlit Application
 # ==========================================================
 
@@ -24,6 +24,30 @@ st.set_page_config(
 
 
 # ==========================================================
+# Project Paths
+# ==========================================================
+
+FRONTEND_DIR = Path(
+    __file__
+).resolve().parent
+
+ASSETS_DIR = (
+    FRONTEND_DIR
+    / "assets"
+)
+
+CSS_PATH = (
+    ASSETS_DIR
+    / "style.css"
+)
+
+LOGO_PATH = (
+    ASSETS_DIR
+    / "logo.png"
+)
+
+
+# ==========================================================
 # Backend Configuration
 # ==========================================================
 
@@ -38,11 +62,47 @@ BACKEND_URL = (
 
 def health_check():
     """
-    Check the deployed FastAPI backend.
+    Check whether the deployed FastAPI backend is available.
 
-    The backend root endpoint is used because the original
-    application uses the root URL for its health check.
+    First tries /health.
+    If /health is not available, falls back to the root URL.
     """
+
+    # ------------------------------------------------------
+    # Try /health endpoint
+    # ------------------------------------------------------
+
+    try:
+
+        response = requests.get(
+            f"{BACKEND_URL}/health",
+            timeout=15,
+        )
+
+        if response.status_code == 200:
+
+            return True
+
+    except requests.exceptions.Timeout:
+
+        pass
+
+    except requests.exceptions.ConnectionError:
+
+        pass
+
+    except requests.exceptions.RequestException:
+
+        pass
+
+    except Exception:
+
+        pass
+
+
+    # ------------------------------------------------------
+    # Try root endpoint
+    # ------------------------------------------------------
 
     try:
 
@@ -51,25 +111,28 @@ def health_check():
             timeout=15,
         )
 
-        response.raise_for_status()
+        if response.status_code == 200:
 
-        return True
+            return True
 
     except requests.exceptions.Timeout:
 
-        return False
+        pass
 
     except requests.exceptions.ConnectionError:
 
-        return False
+        pass
 
     except requests.exceptions.RequestException:
 
-        return False
+        pass
 
     except Exception:
 
-        return False
+        pass
+
+
+    return False
 
 
 # ==========================================================
@@ -81,12 +144,12 @@ def check_backend_connection():
     Automatically connect to the Render backend.
 
     Render may put the backend to sleep after inactivity.
-    Multiple attempts are therefore made automatically to
-    allow the backend time to wake up.
+    Several attempts are made to give the backend enough
+    time to wake up.
     """
 
     # ------------------------------------------------------
-    # Already connected during this Streamlit session
+    # Already connected
     # ------------------------------------------------------
 
     if st.session_state.get(
@@ -98,7 +161,7 @@ def check_backend_connection():
 
 
     # ------------------------------------------------------
-    # Already checked and failed
+    # Already checked
     # ------------------------------------------------------
 
     if st.session_state.get(
@@ -110,12 +173,8 @@ def check_backend_connection():
 
 
     # ------------------------------------------------------
-    # Initial state
+    # Reset state
     # ------------------------------------------------------
-
-    st.session_state[
-        "backend_checked"
-    ] = False
 
     st.session_state[
         "backend_available"
@@ -127,7 +186,7 @@ def check_backend_connection():
 
 
     # ------------------------------------------------------
-    # Automatic connection attempts
+    # Automatic attempts
     # ------------------------------------------------------
 
     max_attempts = 4
@@ -156,7 +215,7 @@ def check_backend_connection():
 
 
         # --------------------------------------------------
-        # Give Render time to wake the backend
+        # Give Render time to wake up
         # --------------------------------------------------
 
         if attempt < max_attempts:
@@ -167,7 +226,7 @@ def check_backend_connection():
 
 
     # ------------------------------------------------------
-    # Backend could not be reached
+    # Backend unavailable
     # ------------------------------------------------------
 
     st.session_state[
@@ -182,34 +241,7 @@ def check_backend_connection():
 
 
 # ==========================================================
-# Load Custom CSS
-# ==========================================================
-
-css_path = Path(
-    "assets/style.css"
-)
-
-if css_path.exists():
-
-    try:
-
-        with open(
-            css_path,
-            encoding="utf-8",
-        ) as f:
-
-            st.markdown(
-                f"<style>{f.read()}</style>",
-                unsafe_allow_html=True,
-            )
-
-    except Exception:
-
-        pass
-
-
-# ==========================================================
-# Session State Initialization
+# Session State
 # ==========================================================
 
 if "backend_available" not in st.session_state:
@@ -234,7 +266,30 @@ if "backend_attempts" not in st.session_state:
 
 
 # ==========================================================
-# Start Backend Connection
+# Load Custom CSS
+# ==========================================================
+
+if CSS_PATH.exists():
+
+    try:
+
+        with open(
+            CSS_PATH,
+            encoding="utf-8",
+        ) as f:
+
+            st.markdown(
+                f"<style>{f.read()}</style>",
+                unsafe_allow_html=True,
+            )
+
+    except Exception:
+
+        pass
+
+
+# ==========================================================
+# Backend Startup Connection
 # ==========================================================
 
 if not st.session_state.get(
@@ -268,33 +323,38 @@ else:
 with st.sidebar:
 
     # ------------------------------------------------------
-    # Logo
+    # Project Logo
     # ------------------------------------------------------
 
-    st.image(
-        "https://img.icons8.com/color/96/resume.png",
-        width=80,
-    )
+    if LOGO_PATH.exists():
+
+        st.image(
+            str(LOGO_PATH),
+            width=100,
+        )
+
+    else:
+
+        st.image(
+            "https://img.icons8.com/color/96/resume.png",
+            width=80,
+        )
 
 
     # ------------------------------------------------------
-    # Application Title
+    # Project Title
     # ------------------------------------------------------
-
-    st.title(
-        "AI Resume Screening Agent"
-    )
-
 
     st.markdown(
         """
         <div style="
-            font-size:13px;
-            opacity:0.7;
-            margin-bottom:10px;
+            font-size:22px;
+            font-weight:700;
+            line-height:1.25;
+            margin-top:12px;
+            margin-bottom:16px;
         ">
-            AI-powered resume screening and recruitment
-            assistance platform
+            AI Resume Screening Agent
         </div>
         """,
         unsafe_allow_html=True,
@@ -304,9 +364,9 @@ with st.sidebar:
     st.divider()
 
 
-    # ------------------------------------------------------
-    # Backend Status
-    # ------------------------------------------------------
+    # ======================================================
+    # BACKEND STATUS
+    # ======================================================
 
     if backend_available:
 
@@ -331,7 +391,7 @@ with st.sidebar:
 
 
     # ------------------------------------------------------
-    # Retry Button
+    # Retry Backend
     # ------------------------------------------------------
 
     if not backend_available:
@@ -357,43 +417,38 @@ with st.sidebar:
             st.rerun()
 
 
-    # ------------------------------------------------------
-    # Version
-    # ------------------------------------------------------
-
-    st.markdown("---")
-
-    st.write(
-        "Version 1.0"
-    )
+    st.divider()
 
 
-# ==========================================================
-# Backend Warning
-# ==========================================================
+    # ======================================================
+    # Project Information
+    # ======================================================
 
-if not backend_available:
-
-    st.warning(
+    st.markdown(
         """
-⚠️ **The FastAPI backend is currently unavailable.**
-
-The frontend is running, but features that require the
-backend may not work until the backend becomes available.
-
-Please wait a few seconds and use **🔄 Retry Backend**
-from the sidebar.
-"""
+        <div style="
+            font-size:18px;
+            font-weight:700;
+            margin-bottom:10px;
+        ">
+            Project
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
-# ==========================================================
-# Main Home Screen
-# ==========================================================
+    st.caption(
+        "Version: 1.0"
+    )
 
-st.title(
-    "📄 AI Resume Screening Agent"
-)
+    st.caption(
+        "Model: Decision Tree"
+    )
+
+    st.caption(
+        "Framework: Streamlit"
+    )
 
 
 # ==========================================================
@@ -404,15 +459,33 @@ if backend_available:
 
     st.success(
         "🟢 Backend is connected. "
-        "The application is ready to use."
+        "The AI Resume Screening Agent is ready to use."
     )
 
 else:
 
     st.warning(
-        "🟡 Frontend is running, but the backend "
-        "has not connected yet."
+        """
+        ⚠️ **The FastAPI backend is currently unavailable.**
+
+        The frontend is running, but backend-dependent
+        features may not work yet.
+
+        Render may still be waking the backend.
+
+        Please use **🔄 Retry Backend** in the sidebar
+        after a short wait.
+        """
     )
+
+
+# ==========================================================
+# Main Home Screen
+# ==========================================================
+
+st.title(
+    "📄 AI Resume Screening Agent"
+)
 
 
 # ==========================================================
@@ -440,9 +513,15 @@ This application uses **Machine Learning** and
 **Artificial Intelligence** to automate resume screening
 and assist recruiters in selecting the most suitable
 candidates.
+"""
+    )
 
-### Features
+    st.subheader(
+        "Features"
+    )
 
+    st.markdown(
+        """
 - Resume Screening
 - Candidate Portal
 - Recruiter Dashboard
@@ -512,6 +591,10 @@ Admin Dashboard
 
 st.markdown("---")
 
+st.subheader(
+    "Project Technologies"
+)
+
 c1, c2, c3, c4 = st.columns(4)
 
 
@@ -557,7 +640,6 @@ st.subheader(
     "💻 Application Status"
 )
 
-
 status_col1, status_col2 = st.columns(2)
 
 
@@ -584,28 +666,30 @@ with status_col2:
 
 
 # ==========================================================
-# Connection Information
+# Backend Connection Information
 # ==========================================================
+
+st.markdown("---")
+
+st.subheader(
+    "🔗 Backend Connection"
+)
+
+st.code(
+    BACKEND_URL
+)
+
 
 if backend_available:
 
     st.success(
-        """
-        ✅ The AI Resume Screening Agent is connected to
-        the FastAPI backend and ready for use.
-        """
+        "✅ FastAPI backend is online and responding."
     )
 
 else:
 
     st.warning(
-        """
-        ⏳ The frontend is available, but the FastAPI
-        backend could not be reached.
-
-        Render may still be waking the backend.
-        Use **Retry Backend** in the sidebar.
-        """
+        "⚠️ FastAPI backend is not responding yet."
     )
 
 
@@ -620,7 +704,7 @@ st.info(
 👈 Use the pages in the left sidebar to navigate
 through the application.
 
-Available sections may include:
+Available sections include:
 
 • Resume Screening
 
@@ -630,15 +714,9 @@ Available sections may include:
 
 • AI Resume Assistant
 
-• Resume Match Score
+• Reports
 
-• Skill Gap Analysis
-
-• Interview Questions
-
-• Hiring Reports
-
-• Analytics Dashboard
+• Analytics
 
 • Admin Dashboard
 """
@@ -646,7 +724,7 @@ Available sections may include:
 
 
 # ==========================================================
-# Footer Message
+# Footer
 # ==========================================================
 
 st.markdown("---")
@@ -656,12 +734,6 @@ st.success(
     "through the application."
 )
 
-
-# ==========================================================
-# Footer
-# ==========================================================
-
-st.markdown("---")
 
 st.caption(
     "© 2026 AI Resume Screening Agent | "
