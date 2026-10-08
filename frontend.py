@@ -187,10 +187,18 @@ if backend_available:
         "🟢 Backend Connected"
     )
 
+    st.sidebar.caption(
+        BACKEND_URL
+    )
+
 else:
 
     st.sidebar.error(
         "🔴 Backend Unavailable"
+    )
+
+    st.sidebar.caption(
+        BACKEND_URL
     )
 
     if st.sidebar.button(
@@ -207,10 +215,6 @@ else:
         ] = False
 
         st.rerun()
-
-st.sidebar.caption(
-    f"Backend: {BACKEND_URL}"
-)
 
 
 # ==========================================================
