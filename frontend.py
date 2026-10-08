@@ -33,16 +33,6 @@ BACKEND_URL = "https://ai-resume-screening-agent-cxgp.onrender.com"
 # ==========================================================
 
 def health_check():
-    """
-    Check and wake the FastAPI backend.
-
-    The frontend automatically calls the backend when
-    the Streamlit session starts.
-
-    Returns:
-        True if backend is available.
-        False otherwise.
-    """
 
     try:
 
@@ -51,12 +41,10 @@ def health_check():
             timeout=60
         )
 
-        if response.status_code == 200:
-            return True
-
-        return False
+        return response.status_code == 200
 
     except requests.exceptions.RequestException:
+
         return False
 
 
@@ -66,55 +54,31 @@ def health_check():
 
 def check_backend_connection():
 
-    # Do not repeatedly wake the backend on every
-    # Streamlit rerun during the same browser session.
-    if st.session_state.get(
-        "backend_checked",
-        False
-    ):
+    # Use cached result during the current Streamlit session
+    if st.session_state.get("backend_checked", False):
 
         return st.session_state.get(
             "backend_available",
             False
         )
 
-    st.session_state[
-        "backend_checked"
-    ] = True
+    st.session_state["backend_checked"] = True
+    st.session_state["backend_available"] = False
 
-    st.session_state[
-        "backend_available"
-    ] = False
-
-    # Number of attempts
     max_attempts = 4
 
-    for attempt in range(
-        1,
-        max_attempts + 1
-    ):
+    for attempt in range(1, max_attempts + 1):
 
-        try:
+        if health_check():
 
-            result = health_check()
+            st.session_state["backend_available"] = True
 
-            if result is True:
-
-                st.session_state[
-                    "backend_available"
-                ] = True
-
-                return True
-
-        except Exception:
-            pass
+            return True
 
         # Give Render time to wake up
         if attempt < max_attempts:
 
-            time.sleep(
-                attempt * 2
-            )
+            time.sleep(attempt * 2)
 
     return False
 
@@ -127,9 +91,7 @@ with st.spinner(
     "🔄 Connecting to backend... It may take a minute."
 ):
 
-    backend_available = (
-        check_backend_connection()
-    )
+    backend_available = check_backend_connection()
 
 
 # ==========================================================
@@ -194,13 +156,8 @@ else:
         use_container_width=True
     ):
 
-        st.session_state[
-            "backend_checked"
-        ] = False
-
-        st.session_state[
-            "backend_available"
-        ] = False
+        st.session_state["backend_checked"] = False
+        st.session_state["backend_available"] = False
 
         st.rerun()
 
@@ -226,9 +183,8 @@ if not backend_available:
         """
 ⚠️ The FastAPI backend is currently unavailable.
 
-The application will continue to load, but features that
-require the backend may not work until the backend becomes
-available.
+The frontend is running, but features that require the
+backend may not work until the backend becomes available.
 
 Use **Retry Backend** from the sidebar after a short wait.
 """
