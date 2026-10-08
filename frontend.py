@@ -25,7 +25,7 @@ st.set_page_config(
 # Backend Configuration
 # ==========================================================
 
-BACKEND_URL = "https://YOUR-BACKEND-NAME.onrender.com"
+BACKEND_URL = "https://ai-resume-screening-agent-cxgp.onrender.com"
 
 
 # ==========================================================
