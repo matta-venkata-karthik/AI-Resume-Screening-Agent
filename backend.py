@@ -121,10 +121,14 @@ class Resume(BaseModel):
 def home():
 
     return {
-
         "message": "AI Resume Screening Agent API is Running Successfully"
-
     }
+
+
+@app.head("/")
+def home_head():
+
+    return
 
 # ==========================================================
 # Upload Resume API
